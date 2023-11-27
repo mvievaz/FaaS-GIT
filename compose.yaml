@@ -4,6 +4,9 @@ services:
 
   natsqueue:
     build: ./NatsQueue
-
   worker:
-    build: ./Executor
+    build: ./Worker
+  frontend:
+    build: ./Frontend
+    ports:
+      - "3000:3000"

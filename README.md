@@ -47,6 +47,6 @@ sudo docker-compose up
 
 ## Contributors
 
-- Óscar Roselló Ibáñez, @orosiba - Project member
-- Alexandre Moncho Rubio, @Axen8 - Project member
-- Miquel Viel Vazquez, @mvievaz - Project member
+- Óscar Roselló Ibáñez, [@orosiba](https://github.com/orosiba) - Project member
+- Alexandre Moncho Rubio, [@Axen81](https://github.com/Axen81) - Project member
+- Miquel Viel Vazquez, [@mvievaz](https://github.com/mvievaz) - Project member

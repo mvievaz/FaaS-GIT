@@ -27,3 +27,16 @@ export function execTS() {
     })
   })
 }
+
+export function cleanNode(): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    exec(`pip freeze | xargs pip uninstall -y`, (err, stdout, stderr) => {
+      if (err) {
+        reject(stderr)
+      }
+      else {
+        resolve(stdout)
+      }
+    })
+  })
+}

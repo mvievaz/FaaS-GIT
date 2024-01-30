@@ -23,8 +23,35 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const girFunc = __importStar(require("./gitFunc"));
-var gitURL = "https://github.com/mvievaz/PI-Test-for-FaaS.git";
-girFunc.downloadGIT(gitURL).then().catch((e) => console.log(e));
-setTimeout(() => { girFunc.clearGIT().then((_resolve) => { console.log("CLEARED"); }); }, 10000);
-// ToDo
+exports.clearGIT = exports.downloadGIT = void 0;
+const simple_git_1 = require("simple-git");
+const fs = __importStar(require("fs"));
+const git = (0, simple_git_1.simpleGit)();
+const localPATH = "./code/";
+function downloadGIT(gitURL) {
+    return new Promise((resolve, reject) => {
+        git.clone(gitURL, localPATH).then(() => {
+            console.log("Repo downloaded");
+            resolve("Repo downloaded");
+        }).catch((reason) => {
+            console.log("Error downloading git");
+            reject(`Error downloading repo ${localPATH}, ERROR: ${reason}`);
+        });
+    });
+}
+exports.downloadGIT = downloadGIT;
+function clearGIT() {
+    return new Promise((resolve, reject) => {
+        fs.rm(localPATH, { recursive: true, }, (error) => {
+            if (error) {
+                console.log("Error clearing git");
+                reject(error);
+            }
+            else {
+                console.log("GIR cleared");
+                resolve("GIT cleared");
+            }
+        });
+    });
+}
+exports.clearGIT = clearGIT;

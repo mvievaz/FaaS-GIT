@@ -1,13 +1,8 @@
-import * as dockerUtils from './docker-utils'
+import * as python from './progLang/python'
+import * as typeScript from './progLang/nodeJS'
+import * as gitUtils from './git-utils'
 
-var containerID: string;
+var gitURL: string = "https://github.com/mvievaz/PI-Test-for-FaaS.git"
 
-dockerUtils.CreateImage("test", '/home/mviel/Master/SAD/PI-Test-for-FaaS/test.tar.xz')
-    .then((response: string) => dockerUtils.CreateContainer("test", ["N=100"]))
-    .then((id: string) => {
-        containerID = id
-        dockerUtils.RunContainer()
-    })
-
-setTimeout(() => dockerUtils.LogsContainers(), 10000)
+gitUtils.downloadGIT(gitURL)
 // ToDo

@@ -5,8 +5,6 @@ COPY package*.json ./
 
 RUN npm install
 
-COPY worker.ts .
-
-RUN npx tsc worker.ts
+COPY /dist/worker.js .
 
 CMD ["node", "worker.js"]

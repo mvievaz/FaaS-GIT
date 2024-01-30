@@ -2,3 +2,4 @@
 Frontend/package-lock.json
 Worker/node_modules/*
 Worker/package-lock.json
+Frontend/node_modules/*

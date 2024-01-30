@@ -11,10 +11,10 @@ burden of managing underlying infrastructure. This revolutionary approach
 enables efficient, scalable, and cost-effective solutions, unlocking new 
 possibilities for application architecture. 
 
-We design an FaaS for git public projects as the central project of one 
-Master's course, SAD (*Servicios y Aplicaciones Distribuidas*). On the next 
+We designed a FaaS for git public projects as the central project of one 
+Master's subject, SAD (*Servicios y Aplicaciones Distribuidas*). On the next 
 lines we explain how to deploy the project and test it. In addition, we 
-describe how this git public projects must be build to use it on the FaaS.
+describe how this git public projects must be built to use it on the FaaS.
 
 ## Table of Contents
 

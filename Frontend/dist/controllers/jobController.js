@@ -100,7 +100,6 @@ const getJobs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (email === undefined) {
             throw new Error('There is no Email');
         }
-        console.log(email);
         const jobList = (0, jobModel_1.getJobsByUser)(email);
         res.send(jobList);
     }

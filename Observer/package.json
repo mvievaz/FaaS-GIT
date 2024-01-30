@@ -2,7 +2,6 @@
   "name": "observer",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "ts-nats": "^1.2.15"
+    "@types/node": "^20.11.10",
+    "nats": "^2.19.0"
   }
 }

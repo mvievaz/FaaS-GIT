@@ -5,13 +5,14 @@ async function submessage(){
         let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222']});
     
         let sub = await nc.subscribe('WorkerQueue', (err, msg) => {
-            nc.publish("FrontQueue", "I'm on it!")
+            let job = JSON.parse(msg.data)
+            nc.publish("FrontQueue", JSON.stringify({'id': job.id, 'status': 'working'}))
             console.log('Message received on', msg.subject, ":", msg.data);
             let suma = 0
             for (let i = 0; i < 25; i++) {
                 suma += Math.random() * 100;
             }
-            nc.publish("FrontQueue", "Job done! Result: " + suma)
+            nc.publish("FrontQueue", JSON.stringify({'id': job.id, 'status': 'finished', 'result': suma}))
         }, {queue: 'Workers'});
     } catch(ex) {
         console.log(ex)

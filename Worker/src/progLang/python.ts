@@ -1,9 +1,10 @@
 import { exec } from "child_process";
 
+const localPATH: string = "./code/"
 
 export function installDep(dependenceFile: string): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    exec(`pip install -r ${dependenceFile}`, (err, stdout, stderr) => {
+    exec(`cd ${localPATH} && pip install -r ${dependenceFile}`, (err, stdout, stderr) => {
       if (err) {
         reject(stderr)
       }
@@ -15,9 +16,9 @@ export function installDep(dependenceFile: string): Promise<string> {
 
 }
 
-export function execPython3(main: string, env: string) {
+export function execPython3(main: string, arg: string) {
   return new Promise<string>((resolve, reject) => {
-    exec(`python3 ${main} ${env}`, (err, stdout, stderr) => {
+    exec(`cd ${localPATH} && python3 ${main} ${arg}`, (err, stdout, stderr) => {
       if (err) {
         reject(stderr)
       }

@@ -1,12 +1,16 @@
 import express from 'express';
-import apiRoutes from './routes/apiRoutes';
+import routes from './routes/apiRoutes';
 
 const app = express();
-const port = 3000;
 
-app.use(express.json());
-app.use('/api', apiRoutes);
+// Mount routes
+app.use('/', routes);
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+
+
+// Start server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
+

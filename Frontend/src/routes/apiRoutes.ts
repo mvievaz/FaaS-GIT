@@ -1,11 +1,16 @@
 import express from 'express';
-import * as jobController from '../controllers/jobController';
-import { authenticateToken } from '../middleware/authenticationMiddleware';
+import {sendJob} from '../controllers/jobController';
+import { verifyToken } from '../middleware/authenticationMiddleware';
+import { OAuthAuthorize, OAuthCallbackEndpoint } from '../controllers/oauth';
 
 const router = express.Router();
 
-router.post('/send-job', authenticateToken, jobController.sendJob);
-router.get('/job-status/:jobId', authenticateToken, jobController.getJobStatus);
-router.get('/list-jobs', authenticateToken, jobController.listJobs);
+router.post('/job/send-job', verifyToken, sendJob);
+// router.get('/job/job-status/:jobId', verifyToken, getJobStatus);
+// router.get('/job/result/:jobId', verifyToken, getJobStatus);
+// router.get('/job/list-jobs', verifyToken, listJobs);
+
+router.get('/oauth/authorize', OAuthAuthorize)
+router.get('/oauth/callback',  OAuthCallbackEndpoint)
 
 export default router;

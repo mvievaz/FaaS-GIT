@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import { Users } from '../models/userModel'
 import { v4 as uuidv4 } from 'uuid';
+import {extractEmailFromJWT} from './jwtHelper'
 
 export const GOOGLE_OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 export const CLIENT_ID = '888958170550-bbfpsgnrne084b4dhinjhqsuq3u75jet.apps.googleusercontent.com';
@@ -33,11 +34,12 @@ export async function handleCallback(code: string): Promise<string> {
     });
 
     const accessToken = response.data.id_token;
-    const email = response.data.email
-    const userID = uuidv4(); //Generating job ID with UUID
-    Users[userID] = accessToken
-    // You can handle storing the access token securely here
-    console.log(Users)
+
+    const email = extractEmailFromJWT(accessToken)
+    //If email exists, we store the user in the Users dictionary
+    if (email !== null){
+        Users[email] = accessToken
+    }
     return accessToken;
 }
 

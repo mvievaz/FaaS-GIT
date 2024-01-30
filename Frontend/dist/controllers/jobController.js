@@ -1,28 +1,112 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendJob = void 0;
-const sendJob = (req, res) => {
-    // Simulate asynchronous job processing
-    // setTimeout(() => {
-    //   Job[jobId] = { status: 'completed', result: 'Job result', startTime };
-    // }, 5000);
-    // res.json({ jobId });
-    console.log("hola");
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getJobs = exports.getJobResult = exports.getJobStatus = exports.sendJob = void 0;
+const jobModel_1 = require("../models/jobModel");
+const uuid_1 = require("uuid");
+function isValidURL(url) {
+    const pattern = /^(https?:\/\/)?([\w\d.-]+)\.([a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
+    return pattern.test(url);
+}
+const sendJob = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.body || typeof req.body.URL !== 'string') {
+            throw new Error('URL of the git repository not found.Make sure to pass the git url via a field in the body called \'URL\' ');
+        }
+        const gitURL = req.body.URL;
+        if (!isValidURL(gitURL)) {
+            throw new Error('URL of the git repository not valid ');
+        }
+        const email = req.email;
+        if (email === undefined) {
+            throw new Error('There is no Email');
+        }
+        const jobID = (0, uuid_1.v4)();
+        const job = {
+            jobID: jobID,
+            status: 'pending',
+            userID: email,
+            url: gitURL,
+            elapsedTime: 0,
+            name: req.body.name
+        };
+        // Add job to JobsQueue and add it to the jobsRelatedToUser
+        (0, jobModel_1.addJob)(jobID, job);
+        console.log('Job added:', job);
+        res.status(200).json({ message: `job added to the queue, with ID = ${jobID}`, data: { gitURL } });
+    }
+    catch (error) {
+        console.error('Error extracting gitURL:', error);
+        res.status(400).json({ error: error });
+    }
+});
 exports.sendJob = sendJob;
-// export const getJobStatus = (req: Request, res: Response) => {
-//     const { jobId } = req.params;
-//     const job = Job[jobId];
-//     if (!job) {
-//       return res.sendStatus(404);
-//     }
-//     const elapsedTime = Date.now() - job.startTime;
-//     res.json({ status: job.status, result: job.result, elapsedTime });
-// };
-// export const listJobs = (req: ExtendedRequest, res: Response) => {
-//     const user = req.user as { username: string };
-//     const userJobs = Object.entries(Job)
-//       .filter(([_, job]) => job.status !== 'completed')
-//       .map(([jobId, job]) => ({ jobId, status: job.status }));
-//     res.json({ user: user.username, jobs: userJobs });
-// };
+const getJobStatus = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.body || typeof req.body.jobID !== 'string') {
+            throw new Error('Pass a valid jobID type String');
+        }
+        const jobIDRequested = req.body.jobID;
+        const email = req.email;
+        if (email === undefined) {
+            throw new Error('There is no Email');
+        }
+        const jobRequested = (0, jobModel_1.getJob)(jobIDRequested);
+        if (jobRequested === undefined) {
+            throw new Error('There is no job with this jobID');
+        }
+        res.send(jobRequested === null || jobRequested === void 0 ? void 0 : jobRequested.status);
+    }
+    catch (error) {
+        console.error('Error getting the job:', error);
+        res.status(400).json({ error: error });
+    }
+});
+exports.getJobStatus = getJobStatus;
+const getJobResult = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!req.body || typeof req.body.jobID !== 'string') {
+            throw new Error('Pass a valid jobID type String');
+        }
+        const jobIDRequested = req.body.jobID;
+        const email = req.email;
+        if (email === undefined) {
+            throw new Error('There is no Email');
+        }
+        const jobRequested = (0, jobModel_1.getJob)(jobIDRequested);
+        if (jobRequested === undefined) {
+            throw new Error('There is no job with this jobID');
+        }
+        res.send(jobRequested === null || jobRequested === void 0 ? void 0 : jobRequested.result);
+    }
+    catch (error) {
+        console.error('Error getting the job:', error);
+        res.status(400).json({ error: error });
+    }
+});
+exports.getJobResult = getJobResult;
+const getJobs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const jobIDRequested = req.body.jobID;
+        const email = req.email;
+        if (email === undefined) {
+            throw new Error('There is no Email');
+        }
+        console.log(email);
+        const jobList = (0, jobModel_1.getJobsByUser)(email);
+        res.send(jobList);
+    }
+    catch (error) {
+        console.error('Error getting the jobs:', error);
+        res.status(400).json({ error: error });
+    }
+});
+exports.getJobs = getJobs;

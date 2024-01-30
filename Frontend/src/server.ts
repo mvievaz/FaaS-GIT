@@ -2,7 +2,7 @@ import express from 'express';
 import routes from './routes/apiRoutes';
 
 const app = express();
-
+app.use(express.json());
 // Mount routes
 app.use('/', routes);
 

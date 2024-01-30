@@ -1,39 +1,104 @@
 import { Request, Response } from 'express';
-import { Job } from '../models/jobModel';
+import { Job, addJob, getJob, getJobsByUser } from '../models/jobModel';
 import { v4 as uuidv4 } from 'uuid';
 
+function isValidURL(url: string): boolean {
+  const pattern = /^(https?:\/\/)?([\w\d.-]+)\.([a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
+  return pattern.test(url);
+}
 
-interface ExtendedRequest extends Request {
-    user?: { username: string };
+interface ExtendedRequest extends Request{
+  email?: string; // Define the 'email' property as optional
+}
+
+export const sendJob = async (req: ExtendedRequest, res: Response) => {
+  try {
+    if (!req.body || typeof req.body.URL !== 'string') {
+      throw new Error('URL of the git repository not found.Make sure to pass the git url via a field in the body called \'URL\' ');
+    }
+    const gitURL = req.body.URL;
+    if (!isValidURL(gitURL)){
+      throw new Error('URL of the git repository not valid ');
+    }
+    const email = req.email
+    if (email === undefined) {
+      throw new Error('There is no Email');
+    }
+    const jobID = uuidv4();
+
+    const job: Job = {
+      jobID: jobID,
+      status: 'pending',
+      userID: email,
+      url: gitURL,
+      elapsedTime: 0,
+      name: req.body.name
+    }
+    // Add job to JobsQueue and add it to the jobsRelatedToUser
+    addJob(jobID, job);
+
+    console.log('Job added:', job);
+
+    res.status(200).json({message: `job added to the queue, with ID = ${jobID}`, data: { gitURL } });
+  } catch (error) {
+      console.error('Error extracting gitURL:', error);
+      res.status(400).json({error: error });
   }
-
-export const sendJob = (req: Request, res: Response) => {
-    // Simulate asynchronous job processing
-    // setTimeout(() => {
-    //   Job[jobId] = { status: 'completed', result: 'Job result', startTime };
-    // }, 5000);
-  
-    // res.json({ jobId });
-    console.log("hola")
 };
 
-// export const getJobStatus = (req: Request, res: Response) => {
-//     const { jobId } = req.params;
-//     const job = Job[jobId];
-  
-//     if (!job) {
-//       return res.sendStatus(404);
-//     }
+export const getJobStatus = async (req: ExtendedRequest, res: Response) => {
+    try {
+      if (!req.body || typeof req.body.jobID !== 'string') {
+        throw new Error('Pass a valid jobID type String');
+      }
+      const jobIDRequested = req.body.jobID;
+      const email = req.email;
+      if (email === undefined) {
+        throw new Error('There is no Email');
+      }
+      const jobRequested = getJob(jobIDRequested)
+      if(jobRequested === undefined){
+        throw new Error('There is no job with this jobID');
+      }
+      res.send(jobRequested?.status)
+    } catch (error) {
+      console.error('Error getting the job:', error);
+      res.status(400).json({error: error });
+    }
+  };
 
-//     const elapsedTime = Date.now() - job.startTime;
-//     res.json({ status: job.status, result: job.result, elapsedTime });
-// };
+  export const getJobResult = async (req: ExtendedRequest, res: Response) => {
+    try {
+      if (!req.body || typeof req.body.jobID !== 'string') {
+        throw new Error('Pass a valid jobID type String');
+      }
+      const jobIDRequested = req.body.jobID;
+      const email = req.email;
+      if (email === undefined) {
+        throw new Error('There is no Email');
+      }
+      const jobRequested = getJob(jobIDRequested)
+      if(jobRequested === undefined){
+        throw new Error('There is no job with this jobID');
+      }
+      res.send(jobRequested?.result)
+    } catch (error) {
+      console.error('Error getting the job:', error);
+      res.status(400).json({error: error });
+    }
+  };
 
-// export const listJobs = (req: ExtendedRequest, res: Response) => {
-//     const user = req.user as { username: string };
-//     const userJobs = Object.entries(Job)
-//       .filter(([_, job]) => job.status !== 'completed')
-//       .map(([jobId, job]) => ({ jobId, status: job.status }));
-  
-//     res.json({ user: user.username, jobs: userJobs });
-// };
+  export const getJobs = async (req: ExtendedRequest, res: Response) => {
+    try {
+      const jobIDRequested = req.body.jobID;
+      const email = req.email;
+      if (email === undefined) {
+        throw new Error('There is no Email');
+      }
+      const jobList = getJobsByUser(email)
+      res.send(jobList)
+    } catch (error) {
+      console.error('Error getting the jobs:', error);
+      res.status(400).json({error: error });
+    }
+  };

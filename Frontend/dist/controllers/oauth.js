@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OAuthCallbackEndpoint = exports.OAuthAuthorize = exports.handleCallback = exports.authorize = exports.SCOPE = exports.REDIRECT_URI = exports.CLIENT_SECRET = exports.CLIENT_ID = exports.GOOGLE_OAUTH_URL = void 0;
 const axios_1 = __importDefault(require("axios"));
 const userModel_1 = require("../models/userModel");
-const uuid_1 = require("uuid");
+const jwtHelper_1 = require("./jwtHelper");
 exports.GOOGLE_OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 exports.CLIENT_ID = '888958170550-bbfpsgnrne084b4dhinjhqsuq3u75jet.apps.googleusercontent.com';
 exports.CLIENT_SECRET = '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';
@@ -45,11 +45,11 @@ function handleCallback(code) {
             },
         });
         const accessToken = response.data.id_token;
-        const email = response.data.email;
-        const userID = (0, uuid_1.v4)(); //Generating job ID with UUID
-        userModel_1.Users[userID] = accessToken;
-        // You can handle storing the access token securely here
-        console.log(userModel_1.Users);
+        const email = (0, jwtHelper_1.extractEmailFromJWT)(accessToken);
+        //If email exists, we store the user in the Users dictionary
+        if (email !== null) {
+            userModel_1.Users[email] = accessToken;
+        }
         return accessToken;
     });
 }

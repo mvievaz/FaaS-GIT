@@ -55,7 +55,14 @@ services:
       - nats
     depends_on:
       - nats
-     
+
+  observer:
+    build: ./Observer
+    networks:
+      - nats
+    depends_on:
+      - nats
+      
 networks:
   nats:
     name: nats

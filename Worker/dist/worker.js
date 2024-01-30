@@ -23,8 +23,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const python = __importStar(require("./progLang/python"));
 const girFunc = __importStar(require("./gitFunc"));
+// Test 1
 var gitURL = "https://github.com/mvievaz/PI-Test-for-FaaS.git";
-girFunc.downloadGIT(gitURL).then().catch((e) => console.log(e));
+var mainFile = "pi.py";
+var arg = "1";
+var req = "requirements.txt";
+girFunc.downloadGIT(gitURL).then(() => python.installDep(req).then(() => python.execPython3(mainFile, arg).then((resolve) => {
+    console.log(resolve);
+}).catch((e) => console.error(e)))).catch((e) => console.log(e));
 setTimeout(() => { girFunc.clearGIT().then((_resolve) => { console.log("CLEARED"); }); }, 10000);
-// ToDo
+// Test 2
+// var gitURL: string = "https://github.com/mvievaz/Taylor-series-for-FaaS.git"
+// var mainFile: string = "pi.py"
+// var arg: string = "1"
+// girFunc.downloadGIT(gitURL).then(() =>
+//     typeScript.installDep().then(() =>
+//         typeScript.execTS().then((resolve) => {
+//             console.log(resolve)
+//         }).catch((e) => console.error(e))
+//     )
+// ).catch((e) => console.log(e))
+// setTimeout(() => { girFunc.clearGIT().then((_resolve: string) => { console.log("CLEARED") }) }, 10000)

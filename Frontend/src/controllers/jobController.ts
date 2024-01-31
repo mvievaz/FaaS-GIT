@@ -110,7 +110,6 @@ export const getJobStatus = async (req: ExtendedRequest, res: Response) => {
   export const getObserverStats = async (req: ExtendedRequest, res: Response) => {
     try {
       const jobIDRequested = req.body.secret;
-      const email = req.email;
       if (jobIDRequested !== "adminSecret1234") {
         throw new Error('Wrong Password');
       }

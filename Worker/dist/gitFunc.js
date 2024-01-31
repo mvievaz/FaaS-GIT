@@ -31,10 +31,8 @@ const localPATH = "./code/";
 function downloadGIT(gitURL) {
     return new Promise((resolve, reject) => {
         git.clone(gitURL, localPATH).then(() => {
-            console.log("Repo downloaded");
             resolve("Repo downloaded");
         }).catch((reason) => {
-            console.log("Error downloading git");
             reject(`Error downloading repo ${localPATH}, ERROR: ${reason}`);
         });
     });
@@ -44,11 +42,9 @@ function clearGIT() {
     return new Promise((resolve, reject) => {
         fs.rm(localPATH, { recursive: true, }, (error) => {
             if (error) {
-                console.log("Error clearing git");
                 reject(error);
             }
             else {
-                console.log("GIR cleared");
                 resolve("GIT cleared");
             }
         });

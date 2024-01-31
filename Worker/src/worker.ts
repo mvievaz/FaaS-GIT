@@ -12,7 +12,7 @@ async function subscribe() {
         let result: string;
         let func: any;
         let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] })
-        let sec = 3600
+        let msec = 3600000
 
         const sub = nc.subscribe("WorkQueue", {
             queue: "workers",
@@ -33,14 +33,14 @@ async function subscribe() {
                                     (err, data) => {
                                         if (err) {
                                             console.log("Error reading faas maifest");
-                                            throw "Error reading faas maifest: \n\n" + err
+                                            throw "Error reading faas maifest:   " + err
                                         }
                                         else {
                                             try {
                                                 func = JSON.parse(data);
                                             } catch (error) {
                                                 console.log("Error parsing faas maifest");
-                                                throw "Error parsing faas maifest: \n\n" + err
+                                                throw "Error parsing faas maifest:   " + err
                                             }
 
                                         }
@@ -82,24 +82,25 @@ async function subscribe() {
                                 }
                             })
                                 .catch((err: any) => {
-                                    result = "Error on execution: \n\n" + err;
+                                    console.log("Error on execution:   " + err)
+                                    result = "Error on execution:   " + err;
                                     throw (err)
                                 })
                         }
-                            , sec * 1000)
+                            , msec)
                         if (!timeoutFlag) {
                             status = 'timeout'
-                            result = `Timeout error: \n\nFunction timeout: ${sec}sec`
+                            result = `Timeout error:   Function timeout: ${msec}sec`
                         }
                     }
                     catch (err) {
                         status = "error"
-                        result = "Error:\n\n" + err;
+                        result = "Error:  " + err;
                     }
                     finally {
                         gitFunc.clearGIT().catch(
                             (err) => {
-                                console.log("Error clearing git folder:\n" + err)
+                                console.log("Error clearing git folder: " + err)
                             }
                         )
                     }

@@ -18,7 +18,7 @@ async function subscribe(){
   
         let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222']})
 
-        const sub = nc.subscribe("FrontQueue", {
+        const sub = nc.subscribe("ResultQueue", {
             callback: (err, msg) => {
                 if (err) {
                     console.log(err.message)
@@ -29,6 +29,7 @@ async function subscribe(){
                     else{
                         JobQueue[job.jobID].status = 'finished'
                         JobQueue[job.jobID].result = job.result
+                        JobQueue[job.jobID].elapsedTime = job.elapsedTime
                     }
                 }
             }

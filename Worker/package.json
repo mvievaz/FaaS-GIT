@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "simple-git": "^3.22.0"
+    "simple-git": "^3.22.0",
+    "@types/node": "^20.10.0",
+    "nats": "^2.19.0"
   }
 }

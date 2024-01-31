@@ -17,7 +17,7 @@ function addJob(jobId, job) {
         exports.JobQueue[jobId] = job;
         const sc = (0, nats_1.StringCodec)();
         let nc = yield (0, nats_1.connect)({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] });
-        nc.publish("WorkerQueue", sc.encode(JSON.stringify(job)));
+        nc.publish("WorkQueue", sc.encode(JSON.stringify(job)));
         nc.flush();
         nc.close();
     });

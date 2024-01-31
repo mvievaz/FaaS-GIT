@@ -23,17 +23,11 @@ services:
       - nats
     depends_on:
       - nats
-      
-  subscriber:
-    build: ./sub
-    scale: 2
-    networks:
-      - nats
-    depends_on:
-      - nats
     
   worker:
     build: ./Worker
+    deploy:
+      replicas: 2
     networks:
       - nats
     depends_on:
@@ -48,7 +42,6 @@ services:
     depends_on:
       - nats
       - worker
-      - subscriber
 
   observer:
     build: ./Observer

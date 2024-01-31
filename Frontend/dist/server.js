@@ -27,7 +27,7 @@ function subscribe() {
         try {
             const sc = (0, nats_1.StringCodec)();
             let nc = yield (0, nats_1.connect)({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] });
-            const sub = nc.subscribe("FrontQueue", {
+            const sub = nc.subscribe("ResultQueue", {
                 callback: (err, msg) => {
                     if (err) {
                         console.log(err.message);
@@ -40,6 +40,7 @@ function subscribe() {
                         else {
                             jobModel_1.JobQueue[job.jobID].status = 'finished';
                             jobModel_1.JobQueue[job.jobID].result = job.result;
+                            jobModel_1.JobQueue[job.jobID].elapsedTime = job.elapsedTime;
                         }
                     }
                 }

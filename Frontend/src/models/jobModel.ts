@@ -24,7 +24,7 @@ export async function addJob(jobId: string, job: Job): Promise<void> {
 
   let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222']})
 
-  nc.publish("WorkerQueue", sc.encode(JSON.stringify(job)))
+  nc.publish("WorkQueue", sc.encode(JSON.stringify(job)))
   
   nc.flush();
   nc.close();

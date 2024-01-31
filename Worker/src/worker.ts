@@ -2,6 +2,37 @@ import * as python from './progLang/python'
 import * as typeScript from './progLang/nodeJS'
 import * as rust from './progLang/rust'
 import * as girFunc from './gitFunc'
+import { connect, StringCodec } from "nats"
+
+async function subscribe(){
+    try {
+
+        const sc = StringCodec();
+
+        let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222']})
+        
+        const sub = nc.subscribe("WorkQueue", { 
+            queue: "workers",
+            callback: (err, msg) => {
+                if (err) {
+                    console.log(err.message)
+                } else {
+                    let job = JSON.parse(sc.decode(msg.data))
+                    console.log(job)
+                    nc.publish("ResultQueue", sc.encode(JSON.stringify({'jobID': job.jobID , 'status': 'working'})))
+                    //Work Todo
+                    nc.publish("ResultQueue", JSON.stringify({'jobID': job.jobID, 'status': 'finished', 'result': '5', 'elapsedTime': '5'}))
+                }
+            }
+        })
+
+    } catch(ex) {
+        console.log(ex)
+    }
+}
+
+
+subscribe()
 
 // Test 1
 

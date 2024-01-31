@@ -1,5 +1,6 @@
 import * as python from './progLang/python'
 import * as typeScript from './progLang/nodeJS'
+import * as rust from './progLang/rust'
 import * as girFunc from './gitFunc'
 
 // Test 1
@@ -33,3 +34,15 @@ import * as girFunc from './gitFunc'
 
 // setTimeout(() => { girFunc.clearGIT().then((_resolve: string) => { console.log("CLEARED") }) }, 10000)
 
+
+// Test 3
+
+// var gitURL: string = "https://github.com/mvievaz/Golden-Ratio-for-FaaS.git"
+// var arg: string = "20"
+// girFunc.downloadGIT(gitURL).then(() =>
+//     rust.execRust(arg).then((resolve) => {
+//         console.log(resolve)
+//     }).catch((e) => console.error(e))
+// ).catch((e) => console.log(e))
+
+// setTimeout(() => { girFunc.clearGIT().then((_resolve: string) => { console.log("CLEARED") }) }, 10000)

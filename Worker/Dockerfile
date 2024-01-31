@@ -16,7 +16,12 @@ RUN apt-get update && apt-get install nodejs -y
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
+
+RUN apt-get install -y git-all
+
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+
 
 COPY . .
 

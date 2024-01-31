@@ -46,10 +46,9 @@ function subscribe() {
             let result;
             let func;
             let nc = yield (0, nats_1.connect)({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] });
-            let msec = 3600000;
             const sub = nc.subscribe("WorkQueue", {
                 queue: "workers",
-                callback: (err, msg) => {
+                callback: (err, msg) => __awaiter(this, void 0, void 0, function* () {
                     if (err) {
                         console.log(err.message);
                     }
@@ -57,85 +56,77 @@ function subscribe() {
                         let job = JSON.parse(sc.decode(msg.data));
                         console.log(job);
                         nc.publish("ResultQueue", sc.encode(JSON.stringify({ 'jobID': job.jobID, 'status': 'working' })));
-                        let timeoutFlag = false;
                         try {
                             new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-                                yield setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                                    timeoutFlag = true;
-                                    yield gitFunc.downloadGIT(job.URL).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
-                                        let file = fs.readFile('./code/faas-manifest.json', 'utf8', (err, data) => {
-                                            if (err) {
-                                                console.log("Error reading faas maifest");
-                                                throw "Error reading faas maifest:   " + err;
-                                            }
-                                            else {
-                                                try {
-                                                    func = JSON.parse(data);
-                                                }
-                                                catch (error) {
-                                                    console.log("Error parsing faas maifest");
-                                                    throw "Error parsing faas maifest:   " + err;
-                                                }
-                                            }
-                                        });
-                                        switch (func.language) {
-                                            case "python":
-                                                console.log(`Executing Python requirements: ${func.requirementsFile}`);
-                                                python.installDep(func.requirementsFile).then(() => {
-                                                    console.log(`Executing Python mainFile: ${func.mainFile}`);
-                                                    return python.execPython3(func.mainFile, func.arg);
-                                                }).then((res) => {
-                                                    result = res;
-                                                    console.log(`Deleting Python requirements`);
-                                                    python.cleanPIP();
-                                                });
-                                                break;
-                                            case "nodeJS":
-                                                console.log(`Executing Node requirements`);
-                                                nodeJS.installDep().then(() => {
-                                                    console.log(`Executing Node`);
-                                                    return nodeJS.execTS();
-                                                }).then((resolve) => {
-                                                    result = resolve;
-                                                });
-                                                break;
-                                            case "rust":
-                                                console.log(`Executing Rust`);
-                                                rust.execRust(func.arg).then((resolve) => {
-                                                    result = resolve;
-                                                });
-                                                break;
-                                            default:
-                                                console.log(`Not allowed programming language: ${func.language}`);
-                                                throw `Not allowed programming language: ${func.language}`;
+                                console.log("Error reading faas maifest");
+                                yield gitFunc.downloadGIT(job.url).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
+                                    yield fs.readFile('./code/faas-manifest.json', 'utf8', (err, data) => {
+                                        if (err) {
+                                            console.log("Error reading faas maifest");
+                                            throw "Error reading faas maifest:   " + err;
                                         }
-                                    }))
-                                        .catch((err) => {
-                                        console.log("Error on execution:   " + err);
-                                        result = "Error on execution:   " + err;
-                                        throw (err);
+                                        else {
+                                            try {
+                                                func = JSON.parse(data);
+                                            }
+                                            catch (error) {
+                                                console.log("Error parsing faas maifest");
+                                                throw "Error parsing faas maifest:   " + err;
+                                            }
+                                        }
                                     });
-                                }), msec);
-                                if (!timeoutFlag) {
-                                    status = 'timeout';
-                                    result = `Timeout error:   Function timeout: ${msec}sec`;
-                                }
+                                    switch (func.language) {
+                                        case "python":
+                                            console.log(`Executing Python requirements: ${func.requirementsFile}`);
+                                            python.installDep(func.requirementsFile).then(() => {
+                                                console.log(`Executing Python mainFile: ${func.mainFile}`);
+                                                return python.execPython3(func.mainFile, func.arg);
+                                            }).then((res) => {
+                                                result = res;
+                                                console.log(`Deleting Python requirements`);
+                                                python.cleanPIP();
+                                            });
+                                            break;
+                                        case "nodeJS":
+                                            console.log(`Executing Node requirements`);
+                                            nodeJS.installDep().then(() => {
+                                                console.log(`Executing Node`);
+                                                return nodeJS.execTS();
+                                            }).then((resolve) => {
+                                                result = resolve;
+                                            });
+                                            break;
+                                        case "rust":
+                                            console.log(`Executing Rust`);
+                                            rust.execRust(func.arg).then((resolve) => {
+                                                result = resolve;
+                                            });
+                                            break;
+                                        default:
+                                            console.log(`Not allowed programming language: ${func.language}`);
+                                            throw `Not allowed programming language: ${func.language}`;
+                                    }
+                                }))
+                                    .catch((err) => {
+                                    console.log("Error on execution:   " + err);
+                                    result = "Error on execution:   " + err;
+                                    throw (err);
+                                });
                                 resolve();
                             })).then(() => {
                                 gitFunc.clearGIT().catch((err) => {
                                     console.log("Error clearing git folder: " + err);
                                 });
+                                nc.publish("ResultQueue", JSON.stringify({ 'jobID': job.jobID, 'status': status, 'result': result, 'elapsedTime': '5' }));
                             });
                         }
                         catch (err) {
                             status = "error";
                             result = "Error:  " + err;
+                            nc.publish("ResultQueue", JSON.stringify({ 'jobID': job.jobID, 'status': status, 'result': result, 'elapsedTime': '5' }));
                         }
-                        finally {
-                        }
-                        nc.publish("ResultQueue", JSON.stringify({ 'jobID': job.jobID, 'status': status, 'result': result, 'elapsedTime': '5' }));
                     }
-                }
+                })
             });
         }
         catch (ex) {

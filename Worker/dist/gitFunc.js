@@ -30,9 +30,11 @@ const git = (0, simple_git_1.simpleGit)();
 const localPATH = "./code/";
 function downloadGIT(gitURL) {
     return new Promise((resolve, reject) => {
+        console.log("GitURL:" + gitURL);
         git.clone(gitURL, localPATH).then(() => {
             resolve("Repo downloaded");
         }).catch((reason) => {
+            console.log("Error downloading repo");
             reject(`Error downloading repo ${localPATH}, ERROR: ${reason}`);
         });
     });

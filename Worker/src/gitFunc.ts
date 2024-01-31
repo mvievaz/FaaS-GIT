@@ -6,12 +6,14 @@ const localPATH: string = "./code/"
 
 export function downloadGIT(gitURL: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
+        console.log("GitURL:" + gitURL)
         git.clone(gitURL, localPATH).then(
             () => {
                 resolve("Repo downloaded")
             }
         ).catch(
             (reason: any) => {
+                console.log("Error downloading repo")
                 reject(`Error downloading repo ${localPATH}, ERROR: ${reason}`)
             }
         )

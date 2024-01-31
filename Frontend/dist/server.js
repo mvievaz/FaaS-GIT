@@ -54,7 +54,7 @@ function subscribeResult() {
                     else {
                         let ObserverComing = JSON.parse(sc.decode(msg.data));
                         userModel_Observer_1.Observer["averageRequests"] = ObserverComing.averageRequests;
-                        userModel_Observer_1.Observer["averagePending"] = ObserverComing.averagePending;
+                        userModel_Observer_1.Observer["averageCompleted"] = ObserverComing.averageCompleted;
                         userModel_Observer_1.Observer["averageTime"] = ObserverComing.averageTime;
                     }
                 }

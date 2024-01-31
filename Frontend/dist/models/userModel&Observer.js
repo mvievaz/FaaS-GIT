@@ -5,6 +5,6 @@ exports.Users = {};
 // Example usage:
 exports.Observer = {
     averageRequests: "0",
-    averagePending: "0",
+    averageCompleted: "0",
     averageTime: "0"
 };

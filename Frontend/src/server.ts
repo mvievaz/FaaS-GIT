@@ -42,7 +42,7 @@ async function subscribeResult(){
                 } else {
                     let ObserverComing = JSON.parse(sc.decode(msg.data))
                     Observer["averageRequests"]  = ObserverComing.averageRequests
-                    Observer["averagePending"] = ObserverComing.averagePending
+                    Observer["averageCompleted"] = ObserverComing.averageCompleted
                     Observer["averageTime"] = ObserverComing.averageTime
                 }
             }

@@ -113,7 +113,6 @@ exports.getJobs = getJobs;
 const getObserverStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const jobIDRequested = req.body.secret;
-        const email = req.email;
         if (jobIDRequested !== "adminSecret1234") {
             throw new Error('Wrong Password');
         }

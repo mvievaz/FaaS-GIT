@@ -26,8 +26,8 @@ async function subscribe() {
                     let timeoutFlag = false;
 
                     try {
-                        new Promise<void>((resolve) => {
-                            setTimeout(async () => {
+                        new Promise<void>(async (resolve) => {
+                            await setTimeout(async () => {
                                 timeoutFlag = true
                                 await gitFunc.downloadGIT(job.URL).then(async (_resolve) => {
                                     let file = fs.readFile('./code/faas-manifest.json', 'utf8',

@@ -59,8 +59,8 @@ function subscribe() {
                         nc.publish("ResultQueue", sc.encode(JSON.stringify({ 'jobID': job.jobID, 'status': 'working' })));
                         let timeoutFlag = false;
                         try {
-                            new Promise((resolve) => {
-                                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                            new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+                                yield setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                                     timeoutFlag = true;
                                     yield gitFunc.downloadGIT(job.URL).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
                                         let file = fs.readFile('./code/faas-manifest.json', 'utf8', (err, data) => {
@@ -121,7 +121,7 @@ function subscribe() {
                                     result = `Timeout error:   Function timeout: ${msec}sec`;
                                 }
                                 resolve();
-                            }).then(() => {
+                            })).then(() => {
                                 gitFunc.clearGIT().catch((err) => {
                                     console.log("Error clearing git folder: " + err);
                                 });

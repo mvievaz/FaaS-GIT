@@ -32,18 +32,49 @@ deployment
 
 ## Quick Start
 
-!Todo Deployment guide
 ```shell
 sudo docker-compose up
 ```
-!Todo Deployment guide
-## Using the project
-
-!ToDo All possibilities
 
 ## Function rules
 
-!Todo Functions to be run have to follow this steps
+Frontend
+
+<br>
+
+To use this Faas, we first need to authenticate the user via oauth. To do that, we will use the endpoint /oauth/authorize, to enter in the google oauth section. After the google login, we will recieve the bearer token used to authenticate in every job Endpoint of the api.
+
+![Alt text](Images/image.png)
+
+In a curl example of sending a job to the frontend: 
+
+```bash
+curl --location 'http://localhost:3000/job/send-job' \ 
+--header 'Content-Type: application/json' \ 
+--header 'Authorization: Bearer {{YOUR JWT BEARER TOKEN HERE}' \ 
+--data '{ 
+    "URL":"https://github.com/mvievaz/PI-Test-for-FaaS.git", 
+    "name": "Job1" 
+}' 
+```
+
+<br>
+
+Worker 
+
+<br>
+
+In our architecture, we support the execution of various programming languages within our worker services. However, for these services to operate effectively, the associated Git repository must include a document detailing the execution context. This document will be faas-manifest.json with the following fields: 
+
+- “language”: Field mandatory with 3 options: “python”, “rust”, “nodeJS” 
+
+- “arg”: Field optional to pass parameters to the main function, works on python and rust 
+
+- “requirementsFile”: Field optional with the pip packages to download. Works on  python only 
+
+- “mainFile”: Field mandatory when using python language to specify the python file to execute 
+
+When the git repository is structured for Node.js, it must include a package.json file containing dependencies and a preconfigured npm start command to ensure proper functionality. 
 
 ## Test
 

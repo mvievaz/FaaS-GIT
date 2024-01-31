@@ -38,13 +38,41 @@ const rust = __importStar(require("./progLang/rust"));
 const gitFunc = __importStar(require("./gitFunc"));
 const nats_1 = require("nats");
 const fs = __importStar(require("fs"));
+var fdate;
+var ldate;
+function read(filePath) {
+    try {
+        return fs.readFileSync(filePath, 'utf8');
+    }
+    catch (error) {
+        throw error;
+    }
+}
+function parseJson(filePath) {
+    try {
+        return JSON.parse(read(filePath));
+    }
+    catch (error) {
+        throw error;
+    }
+}
+function publishError(nc, result, jobID) {
+    ldate = new Date();
+    var elapsedTime = (ldate.getTime() - fdate.getTime()) / 1000;
+    nc.publish("ResultQueue", JSON.stringify({ 'jobID': jobID, 'status': "error", 'result': result, 'elapsedTime': elapsedTime }));
+    gitFunc.clearGIT();
+}
+function publish(nc, result, jobID) {
+    ldate = new Date();
+    var elapsedTime = (ldate.getTime() - fdate.getTime()) / 1000;
+    nc.publish("ResultQueue", JSON.stringify({ 'jobID': jobID, 'status': "finished", 'result': result, 'elapsedTime': elapsedTime }));
+    gitFunc.clearGIT();
+}
 function subscribe() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const sc = (0, nats_1.StringCodec)();
-            let status = "finished";
             let result;
-            let func;
             let nc = yield (0, nats_1.connect)({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] });
             const sub = nc.subscribe("WorkQueue", {
                 queue: "workers",
@@ -53,78 +81,55 @@ function subscribe() {
                         console.log(err.message);
                     }
                     else {
+                        fdate = new Date();
                         let job = JSON.parse(sc.decode(msg.data));
                         console.log(job);
                         nc.publish("ResultQueue", sc.encode(JSON.stringify({ 'jobID': job.jobID, 'status': 'working' })));
-                        try {
-                            new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
-                                console.log("Error reading faas maifest");
-                                yield gitFunc.downloadGIT(job.url).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
-                                    yield fs.readFile('./code/faas-manifest.json', 'utf8', (err, data) => {
-                                        if (err) {
-                                            console.log("Error reading faas maifest");
-                                            throw "Error reading faas maifest:   " + err;
-                                        }
-                                        else {
-                                            try {
-                                                func = JSON.parse(data);
+                        gitFunc.downloadGIT(job.url).then(() => {
+                            let func = parseJson('./code/faas-manifest.json');
+                            console.log(func);
+                            switch (func.language) {
+                                case "python":
+                                    console.log("Python");
+                                    python.installDep(func.requirementsFile).then(() => {
+                                        console.log("Dep installed");
+                                        python.execPython3(func.mainFile, func.arg).then((resolve) => {
+                                            result = resolve;
+                                            console.log("Python finished:" + result);
+                                            let req = read('./code/' + func.requirementsFile);
+                                            if (req !== "") {
+                                                python.cleanPIP().then(() => {
+                                                    publish(nc, result, job.jobID);
+                                                }).catch((err) => { publishError(nc, err, job.jobID); });
                                             }
-                                            catch (error) {
-                                                console.log("Error parsing faas maifest");
-                                                throw "Error parsing faas maifest:   " + err;
+                                            else {
+                                                publish(nc, result, job.jobID);
                                             }
-                                        }
-                                    });
-                                    switch (func.language) {
-                                        case "python":
-                                            console.log(`Executing Python requirements: ${func.requirementsFile}`);
-                                            python.installDep(func.requirementsFile).then(() => {
-                                                console.log(`Executing Python mainFile: ${func.mainFile}`);
-                                                return python.execPython3(func.mainFile, func.arg);
-                                            }).then((res) => {
-                                                result = res;
-                                                console.log(`Deleting Python requirements`);
-                                                python.cleanPIP();
-                                            });
-                                            break;
-                                        case "nodeJS":
-                                            console.log(`Executing Node requirements`);
-                                            nodeJS.installDep().then(() => {
-                                                console.log(`Executing Node`);
-                                                return nodeJS.execTS();
-                                            }).then((resolve) => {
-                                                result = resolve;
-                                            });
-                                            break;
-                                        case "rust":
-                                            console.log(`Executing Rust`);
-                                            rust.execRust(func.arg).then((resolve) => {
-                                                result = resolve;
-                                            });
-                                            break;
-                                        default:
-                                            console.log(`Not allowed programming language: ${func.language}`);
-                                            throw `Not allowed programming language: ${func.language}`;
-                                    }
-                                }))
-                                    .catch((err) => {
-                                    console.log("Error on execution:   " + err);
-                                    result = "Error on execution:   " + err;
-                                    throw (err);
-                                });
-                                resolve();
-                            })).then(() => {
-                                gitFunc.clearGIT().catch((err) => {
-                                    console.log("Error clearing git folder: " + err);
-                                });
-                                nc.publish("ResultQueue", JSON.stringify({ 'jobID': job.jobID, 'status': status, 'result': result, 'elapsedTime': '5' }));
-                            });
-                        }
-                        catch (err) {
-                            status = "error";
-                            result = "Error:  " + err;
-                            nc.publish("ResultQueue", JSON.stringify({ 'jobID': job.jobID, 'status': status, 'result': result, 'elapsedTime': '5' }));
-                        }
+                                        }).catch((err) => { publishError(nc, err, job.jobID); });
+                                    }).catch((err) => { publishError(nc, err, job.jobID); });
+                                    break;
+                                case "nodeJS":
+                                    console.log("node");
+                                    nodeJS.installDep().then(() => {
+                                        console.log("Dep installed");
+                                        nodeJS.execTS().then((resolve) => {
+                                            result = resolve;
+                                            publish(nc, result, job.jobID);
+                                        }).catch((err) => { publishError(nc, err, job.jobID); });
+                                    }).catch((err) => { publishError(nc, err, job.jobID); });
+                                    break;
+                                case "rust":
+                                    console.log("Rust");
+                                    rust.execRust(func.arg).then((result) => {
+                                        console.log("Rust exected");
+                                        publish(nc, result, job.jobID);
+                                    }).catch((err) => { publishError(nc, err, job.jobID); });
+                                    break;
+                                default:
+                                    publishError(nc, "No allowed programming language", job.jobID);
+                                    break;
+                            }
+                        }).catch((err) => { publishError(nc, err, job.jobID); });
                     }
                 })
             });

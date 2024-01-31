@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nats_1 = require("nats");
 var jobsDic = {};
 const sc = (0, nats_1.StringCodec)();
-function submessage() {
+function subscribe() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             let nc = yield (0, nats_1.connect)({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] });
@@ -23,7 +23,7 @@ function submessage() {
                     }
                     else {
                         let job = JSON.parse(sc.decode(msg.data));
-                        jobsDic[job.id] = { 'ArrivalTime': new Date() };
+                        jobsDic[job.jobID] = { 'ArrivalTime': new Date() };
                         console.log(jobsDic);
                     }
                 }
@@ -36,9 +36,9 @@ function submessage() {
                     else {
                         let job = JSON.parse(sc.decode(msg.data));
                         if (job.status === 'working')
-                            jobsDic[job.id].StartTime = new Date();
+                            jobsDic[job.jobID].StartTime = new Date();
                         else
-                            jobsDic[job.id].FinishTime = new Date();
+                            jobsDic[job.jobID].FinishTime = new Date();
                         console.log(jobsDic);
                     }
                 }
@@ -49,4 +49,7 @@ function submessage() {
         }
     });
 }
-submessage();
+function checkStatus() {
+}
+subscribe();
+setInterval(() => checkStatus(), 5000);

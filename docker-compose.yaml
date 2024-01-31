@@ -23,14 +23,6 @@ services:
       - nats
     depends_on:
       - nats
-
-  publisher:
-    build: ./pub
-    networks:
-      - nats
-    depends_on:
-      - nats
-      - subscriber
       
   subscriber:
     build: ./sub
@@ -55,6 +47,8 @@ services:
       - nats
     depends_on:
       - nats
+      - worker
+      - subscriber
 
   observer:
     build: ./Observer

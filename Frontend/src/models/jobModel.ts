@@ -1,3 +1,5 @@
+import { connect, StringCodec } from "nats"
+
 export interface Job {
       jobID: string;
       status: string;
@@ -14,8 +16,19 @@ export interface JobQueue {
 
 export const JobQueue: JobQueue = {};
 
-export function addJob(jobId: string, job: Job): void {
+export async function addJob(jobId: string, job: Job): Promise<void> {
+
   JobQueue[jobId] = job;
+
+  const sc = StringCodec();
+
+  let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222']})
+
+  nc.publish("WorkerQueue", sc.encode(JSON.stringify(job)))
+  
+  nc.flush();
+  nc.close();
+
 }
 
 //Retrieving a job from the dictionary

@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/node": "^20.11.10",
+    "@types/node": "^20.10.0",
     "nats": "^2.19.0"
   }
 }

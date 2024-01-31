@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getJobs = exports.getJobResult = exports.getJobStatus = exports.sendJob = void 0;
+exports.getObserverStats = exports.getJobs = exports.getJobResult = exports.getJobStatus = exports.sendJob = void 0;
 const jobModel_1 = require("../models/jobModel");
 const uuid_1 = require("uuid");
+const userModel_Observer_1 = require("../models/userModel&Observer");
 function isValidURL(url) {
     const pattern = /^(https?:\/\/)?([\w\d.-]+)\.([a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
     return pattern.test(url);
@@ -109,3 +110,18 @@ const getJobs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getJobs = getJobs;
+const getObserverStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const jobIDRequested = req.body.secret;
+        const email = req.email;
+        if (jobIDRequested !== "adminSecret1234") {
+            throw new Error('Wrong Password');
+        }
+        res.send(userModel_Observer_1.Observer);
+    }
+    catch (error) {
+        console.error('Error getting the observerStats:', error);
+        res.status(400).json({ error: error });
+    }
+});
+exports.getObserverStats = getObserverStats;

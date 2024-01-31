@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OAuthCallbackEndpoint = exports.OAuthAuthorize = exports.handleCallback = exports.authorize = exports.SCOPE = exports.REDIRECT_URI = exports.CLIENT_SECRET = exports.CLIENT_ID = exports.GOOGLE_OAUTH_URL = void 0;
 const axios_1 = __importDefault(require("axios"));
-const userModel_1 = require("../models/userModel");
+const userModel_Observer_1 = require("../models/userModel&Observer");
 const jwtHelper_1 = require("./jwtHelper");
 exports.GOOGLE_OAUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 exports.CLIENT_ID = '888958170550-bbfpsgnrne084b4dhinjhqsuq3u75jet.apps.googleusercontent.com';
@@ -48,7 +48,7 @@ function handleCallback(code) {
         const email = (0, jwtHelper_1.extractEmailFromJWT)(accessToken);
         //If email exists, we store the user in the Users dictionary
         if (email !== null) {
-            userModel_1.Users[email] = accessToken;
+            userModel_Observer_1.Users[email] = accessToken;
         }
         return accessToken;
     });

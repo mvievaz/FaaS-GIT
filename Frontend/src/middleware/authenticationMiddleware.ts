@@ -16,7 +16,7 @@ export const verifyToken = async (req: ExtendedRequest, res: Response, next: Nex
         return res.status(401).json({ message: 'Unauthorized: Bearer token missing or invalid' });
     }
     // Extract the token from the bearer token string
-    const token = bearerToken.split(' ')[2];
+    const token = bearerToken.split(' ')[1];
 
     try {
         //If email exist in the jwt, we will verify if the jwt is equal to our jwt stored associated with the user email 

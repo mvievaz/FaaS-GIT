@@ -1,7 +1,7 @@
 // OAuth provider configuration
 import { Request, Response } from 'express';
 import axios from 'axios';
-import { Users } from '../models/userModel'
+import { Users } from '../models/userModel&Observer'
 import { v4 as uuidv4 } from 'uuid';
 import {extractEmailFromJWT} from './jwtHelper'
 

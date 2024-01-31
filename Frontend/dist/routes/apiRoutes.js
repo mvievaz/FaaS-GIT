@@ -12,6 +12,7 @@ router.post('/job/send-job', authenticationMiddleware_1.verifyToken, jobControll
 router.get('/job/job-status/', authenticationMiddleware_1.verifyToken, jobController_1.getJobStatus);
 router.get('/job/result/', authenticationMiddleware_1.verifyToken, jobController_1.getJobResult);
 router.get('/job/list-jobs', authenticationMiddleware_1.verifyToken, jobController_1.getJobs);
+router.get('/observer/stats', authenticationMiddleware_1.verifyToken, jobController_1.getObserverStats);
 router.get('/oauth/authorize', oauth_1.OAuthAuthorize);
 router.get('/oauth/callback', oauth_1.OAuthCallbackEndpoint);
 exports.default = router;

@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = void 0;
-const userModel_1 = require("../models/userModel");
+const userModel_Observer_1 = require("../models/userModel&Observer");
 const jwtHelper_1 = require("../controllers/jwtHelper");
 // Middleware function to verify the token and email
 const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -20,12 +20,12 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         return res.status(401).json({ message: 'Unauthorized: Bearer token missing or invalid' });
     }
     // Extract the token from the bearer token string
-    const token = bearerToken.split(' ')[2];
+    const token = bearerToken.split(' ')[1];
     try {
         //If email exist in the jwt, we will verify if the jwt is equal to our jwt stored associated with the user email 
         const email = (0, jwtHelper_1.extractEmailFromJWT)(token);
         if (email !== null) {
-            if (userModel_1.Users[email] === token) {
+            if (userModel_Observer_1.Users[email] === token) {
                 req.email = email;
                 next();
             }

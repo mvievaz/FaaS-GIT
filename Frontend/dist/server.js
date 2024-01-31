@@ -16,13 +16,14 @@ const express_1 = __importDefault(require("express"));
 const apiRoutes_1 = __importDefault(require("./routes/apiRoutes"));
 const nats_1 = require("nats");
 const jobModel_1 = require("./models/jobModel");
+const userModel_Observer_1 = require("./models/userModel&Observer");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 // Mount routes
 app.use('/', apiRoutes_1.default);
 const PORT = process.env.PORT || 3000;
 //Subscribe to the NATS QUEUE
-function subscribe() {
+function subscribeResult() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const sc = (0, nats_1.StringCodec)();
@@ -45,13 +46,26 @@ function subscribe() {
                     }
                 }
             });
+            const sub2 = nc.subscribe("ObserverQueue", {
+                callback: (err, msg) => {
+                    if (err) {
+                        console.log(err.message);
+                    }
+                    else {
+                        let ObserverComing = JSON.parse(sc.decode(msg.data));
+                        userModel_Observer_1.Observer["averageRequests"] = ObserverComing.averageRequests;
+                        userModel_Observer_1.Observer["averageCompleted"] = ObserverComing.averageCompleted;
+                        userModel_Observer_1.Observer["averageTime"] = ObserverComing.averageTime;
+                    }
+                }
+            });
         }
         catch (ex) {
             console.log(ex);
         }
     });
 }
-subscribe();
+subscribeResult();
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

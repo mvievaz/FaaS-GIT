@@ -2,6 +2,7 @@ import express from 'express';
 import routes from './routes/apiRoutes';
 import { connect, StringCodec } from "nats"
 import { Job, JobQueue } from './models/jobModel'
+import { Observer } from './models/userModel&Observer';
 
 const app = express();
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use('/', routes);
 const PORT = process.env.PORT || 3000;
 
 //Subscribe to the NATS QUEUE
-async function subscribe(){
+async function subscribeResult(){
     try {
   
         const sc = StringCodec();
@@ -34,13 +35,25 @@ async function subscribe(){
                 }
             }
         })
+        const sub2 = nc.subscribe("ObserverQueue", {
+            callback: (err, msg) => {
+                if (err) {
+                    console.log(err.message)
+                } else {
+                    let ObserverComing = JSON.parse(sc.decode(msg.data))
+                    Observer["averageRequests"]  = ObserverComing.averageRequests
+                    Observer["averageCompleted"] = ObserverComing.averageCompleted
+                    Observer["averageTime"] = ObserverComing.averageTime
+                }
+            }
+        })
   
     } catch(ex) {
         console.log(ex)
     }
   }
   
-  subscribe()
+subscribeResult()
 
 // Start server
 app.listen(PORT, () => {

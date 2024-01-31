@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { Users } from '../models/userModel'
+import { Users } from '../models/userModel&Observer'
 import {extractEmailFromJWT} from '../controllers/jwtHelper'
 
 interface ExtendedRequest extends Request{

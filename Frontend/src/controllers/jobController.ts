@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Job, addJob, getJob, getJobsByUser } from '../models/jobModel';
 import { v4 as uuidv4 } from 'uuid';
+import { Observer } from '../models/userModel&Observer';
+
 
 function isValidURL(url: string): boolean {
   const pattern = /^(https?:\/\/)?([\w\d.-]+)\.([a-z]{2,})(:\d{1,5})?(\/\S*)?$/i;
@@ -99,6 +101,21 @@ export const getJobStatus = async (req: ExtendedRequest, res: Response) => {
       res.send(jobList)
     } catch (error) {
       console.error('Error getting the jobs:', error);
+      res.status(400).json({error: error });
+    }
+  };
+
+  
+
+  export const getObserverStats = async (req: ExtendedRequest, res: Response) => {
+    try {
+      const jobIDRequested = req.body.secret;
+      if (jobIDRequested !== "adminSecret1234") {
+        throw new Error('Wrong Password');
+      }
+      res.send(Observer)
+    } catch (error) {
+      console.error('Error getting the observerStats:', error);
       res.status(400).json({error: error });
     }
   };

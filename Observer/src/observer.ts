@@ -3,9 +3,18 @@ import { connect, StringCodec } from "nats"
 
 var jobsList: { [key: string]: any } = {}
 
-var WaitingToWork = 0
-var WaitingToFront = 0
-
+// Total jobs completed
+var jobsCompleted = 0
+// Average jobs completed per minute
+var averageJobsCompleted = 0
+// Total requests
+var requests = 0
+// Average requests per minute
+var averageRequests = 0
+// Average time to complete jobs
+var averageElapsedTime = 0
+// Minutes since the observer is running
+var minutes = 0
 
 const sc = StringCodec();
 
@@ -21,9 +30,7 @@ async function subscribe(){
                 if (err) {
                     console.log(err.message)
                 } else {
-                    let job = JSON.parse(sc.decode(msg.data))
-                    jobsList[job.id] = { 'ArrivalTime': new Date() }
-                    console.log(jobsList)
+                    requests++
                 }
             }
         })
@@ -34,13 +41,18 @@ async function subscribe(){
                 if (err) {
                     console.log(err.message)
                 } else {
+                    // Parse the message recieved
                     let job = JSON.parse(sc.decode(msg.data))
-                    if(job.status === 'working') jobsList[job.id].StartTime = new Date()
-                    else jobsList[job.id].FinishTime = new Date()
-                    console.log(jobsList)
+                    if(job.status !== 'working')
+                    {
+                        jobsCompleted++
+                        averageElapsedTime = averageElapsedTime + ((job.elapsedTime - averageElapsedTime) / jobsCompleted)
+                    }
                 }
             }
         })
+
+
 
     } catch(ex) {
         console.log(ex)
@@ -48,15 +60,28 @@ async function subscribe(){
 }
 
 //Calculate averages and print status
-function checkStatus(){
-    for (const key in jobsList) {
-        if(jobsList.hasOwnProperty(key)) {
-          const job = jobsList[key];
-          
-        }
-    }
+async function checkStatus(){
+
+    minutes++
+    
+    // Average request per minute calculed as request / minutes
+    averageRequests = requests / minutes
+
+    // Average completed jobs per minute calculed as jobs completed / minutes
+    averageJobsCompleted = jobsCompleted / minutes
+
+    //Conect to the cluster
+    let nc = await connect({ servers: ['nats://nats:4222', 'nats://nats-1:4222', 'nats://nats-2:4222'] })
+
+    // Publish averages
+    nc.publish("ObserverQueue", sc.encode(JSON.stringify({ 'averageRequests': averageRequests, 'averageCompleted': averageJobsCompleted,
+        'averageTime': averageElapsedTime })))
+
+    console.log("Average requests per minute: " + averageRequests)
+    console.log("Average jobs completed per minute: " + averageJobsCompleted)
+    console.log("Average time to complete jobs: " + averageElapsedTime)
 }
 
 subscribe()
 
-setInterval(() => checkStatus(), 5000)
+setInterval(() => checkStatus(), 60000)

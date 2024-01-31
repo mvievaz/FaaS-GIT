@@ -59,9 +59,9 @@ function subscribe() {
                         nc.publish("ResultQueue", sc.encode(JSON.stringify({ 'jobID': job.jobID, 'status': 'working' })));
                         let timeoutFlag = false;
                         try {
-                            setTimeout(() => {
-                                gitFunc.downloadGIT(job.URL).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
-                                    timeoutFlag = true;
+                            setTimeout(() => __awaiter(this, void 0, void 0, function* () {
+                                timeoutFlag = true;
+                                yield gitFunc.downloadGIT(job.URL).then((_resolve) => __awaiter(this, void 0, void 0, function* () {
                                     let file = fs.readFile('./code/faas-manifest.json', 'utf8', (err, data) => {
                                         if (err) {
                                             console.log("Error reading faas maifest");
@@ -114,7 +114,7 @@ function subscribe() {
                                     result = "Error on execution:   " + err;
                                     throw (err);
                                 });
-                            }, msec);
+                            }), msec);
                             if (!timeoutFlag) {
                                 status = 'timeout';
                                 result = `Timeout error:   Function timeout: ${msec}sec`;

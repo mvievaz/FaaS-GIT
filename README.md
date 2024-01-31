@@ -21,9 +21,10 @@ describe how this git public projects must be built to use it on the FaaS.
 1. [Development Environment](#development-environment) - Prerequisites for 
 deployment
 2. [Quick Start](#quick-start) - Deployment guide
-3. [Function rules](#function-rules) - Functions to be run have to follow this steps
-4. [Test](#test) - Simple test of the project
-5. [Contributors](#contributors) - Members of the project group
+3. [Using the project](#using-the-project) - All project possibilities
+4. [Function rules](#function-rules) - Functions to be run have to follow this steps
+5. [Test](#test) - Simple test of the project
+6. [Contributors](#contributors) - Members of the project group
 
 ## Development Environment
 
@@ -36,6 +37,9 @@ deployment
 sudo docker-compose up
 ```
 !Todo Deployment guide
+## Using the project
+
+!ToDo All possibilities
 
 ## Function rules
 
